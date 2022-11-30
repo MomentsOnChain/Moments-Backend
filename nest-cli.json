@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/moments/src",
+  "monorepo": true,
+  "root": "apps/moments",
+  "compilerOptions": {
+    "webpack": true,
+    "tsConfigPath": "apps/moments/tsconfig.app.json"
+  },
+  "projects": {
+    "moments": {
+      "type": "application",
+      "root": "apps/moments",
+      "entryFile": "main",
+      "sourceRoot": "apps/moments/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/moments/tsconfig.app.json"
+      }
+    },
+    "moments-processor": {
+      "type": "application",
+      "root": "apps/moments-processor",
+      "entryFile": "main",
+      "sourceRoot": "apps/moments-processor/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/moments-processor/tsconfig.app.json"
+      }
+    },
+    "mongodb": {
+      "type": "library",
+      "root": "libs/mongoose",
+      "entryFile": "index",
+      "sourceRoot": "libs/mongoose/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/mongoose/tsconfig.lib.json"
+      }
+    }
+  }
+}
