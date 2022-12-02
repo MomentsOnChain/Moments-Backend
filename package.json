@@ -35,12 +35,16 @@
     "argon2": "^0.30.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
+    "dotenv": "^16.0.3",
+    "keyv": "^4.5.2",
     "mongoose": "^6.7.3",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "stripe": "^11.1.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -53,6 +57,7 @@
     "@types/passport": "^0",
     "@types/passport-jwt": "^3.0.7",
     "@types/supertest": "^2.0.11",
+    "@types/uuid": "^9",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "concurrently": "^7.4.0",

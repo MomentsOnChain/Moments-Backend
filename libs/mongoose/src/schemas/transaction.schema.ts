@@ -16,13 +16,25 @@ export const TransactionSchema = new Schema(
       required: true,
       type: SchemaTypes.Number,
     },
-    spacesBought: {
+    spacesCount: {
       required: true,
       type: SchemaTypes.Number,
     },
-    success: {
+    paymentStatus: {
       required: true,
       type: SchemaTypes.Boolean,
+    },
+    provider: {
+      required: true,
+      type: SchemaTypes.String,
+    },
+    paymentId: {
+      required: true,
+      type: SchemaTypes.String,
+    },
+    stripeProductId: {
+      type: SchemaTypes.String,
+      required: true,
     },
   },
   { timestamps: true },

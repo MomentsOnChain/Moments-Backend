@@ -20,7 +20,9 @@
     "strict": true,
     "paths": {
       "@app/mongoose": ["libs/mongoose/src"],
-      "@app/mongoose/*": ["libs/mongoose/src/*"]
+      "@app/mongoose/*": ["libs/mongoose/src/*"],
+      "@app/sqlite": ["libs/sqlite/sqlite"],
+      "@config/*": ["config/*"]
     }
   }
 }

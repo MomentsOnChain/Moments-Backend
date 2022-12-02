@@ -8,7 +8,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { MomentsController } from './processor.controller';
+// import { MomentsController } from './processor.controller';
 import { MomentsService } from './processor.service';
 import { Logger } from '@nestjs/common';
 
@@ -44,7 +44,7 @@ const logger = new Logger();
     TransactionModule,
     UserModule,
   ],
-  controllers: [MomentsController],
+  controllers: [],
   providers: [TransactionService, MomentsService, UserService],
 })
 export class AppModule {}

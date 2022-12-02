@@ -10,6 +10,7 @@ import { Connection } from 'mongoose';
 import { ApiService } from './api.service';
 import { AuthModule } from './auth/auth.module';
 import { UserController, SpacesController } from './controllers';
+import { SpacesService } from './space.service';
 const logger = new Logger('AppModule');
 
 const clients = ClientsModule.register([
@@ -23,6 +24,7 @@ const clients = ClientsModule.register([
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env',
     }),
     MongooseModule.forRoot(process.env.DB_URI ?? '', {
       connectionFactory: (connection: Connection) => {
@@ -52,7 +54,7 @@ const clients = ClientsModule.register([
     AuthModule,
   ],
   controllers: [SpacesController, UserController],
-  providers: [UserService, ApiService, JwtService],
+  providers: [UserService, ApiService, JwtService, SpacesService],
   exports: [clients],
 })
 export class AppModule {}

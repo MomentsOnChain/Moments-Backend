@@ -7,7 +7,9 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
+import { ConfigService } from '@nestjs/config';
 
+const envService = new ConfigService();
 const logger = new Logger();
 async function bootstrap() {
   logger.log('Starting Moments API...');
@@ -25,8 +27,8 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-
-  await app.listen(3000);
-  logger.log('Application is listening on port 3000');
+  const PORT = envService.get('PORT') || 3000;
+  await app.listen(PORT);
+  logger.log(`Application is listening on port ${PORT}`);
 }
 bootstrap();

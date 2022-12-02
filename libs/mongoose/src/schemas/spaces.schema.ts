@@ -8,6 +8,10 @@ export const SpacesSchema = new Schema(
       type: SchemaTypes.ObjectId,
       auto: true,
     },
+    spaceName: {
+      required: true,
+      type: SchemaTypes.String,
+    },
     userId: {
       required: true,
       type: SchemaTypes.ObjectId,
@@ -16,9 +20,22 @@ export const SpacesSchema = new Schema(
       required: true,
       type: SchemaTypes.ObjectId,
     },
-    spaces: {
+    spacesSize: {
       type: SchemaTypes.Number,
       default: 100,
+    },
+    isMinted: {
+      type: SchemaTypes.Boolean,
+      default: false,
+    },
+    blockChainName: {
+      type: SchemaTypes.String,
+    },
+    blockChainAddr: {
+      type: SchemaTypes.String,
+    },
+    combinedImageURL: {
+      type: SchemaTypes.String,
     },
   },
   { timestamps: true },

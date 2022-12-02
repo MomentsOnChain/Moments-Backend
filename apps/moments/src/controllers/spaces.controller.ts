@@ -1,24 +1,27 @@
+import { CreateTransactionDto } from '@app/mongoose';
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
-  Inject,
+  // Inject,
   Param,
+  Post,
   UseGuards,
 } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+// import { ClientProxy } from '@nestjs/microservices';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { MicroServices } from '../../../../config/tcp.enums';
+// import { MicroServices } from '../../../../config/tcp.enums';
 import { ApiService } from '../api.service';
 import { JwtGuard } from '../auth/guard';
-
+import { SpacesService } from '../space.service';
+import { PlanIds } from '@config/plans';
 @ApiTags('Spaces')
 @Controller('spaces')
 export class SpacesController {
   constructor(
     private readonly apiService: ApiService,
-    @Inject(MicroServices.Processor)
-    private readonly communicationClient: ClientProxy,
+    private readonly spacesService: SpacesService, // @Inject(MicroServices.Processor) // private readonly communicationClient: ClientProxy,
   ) {
     // todo: add logic and integration with microservice for stripe payment
   }
@@ -33,6 +36,24 @@ export class SpacesController {
   @Get('mySpaces')
   async getMySpace(@Param('id') id: string) {
     const resp = await this.apiService.getUser(id);
+    return resp;
+  }
+
+  //@ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Buy spaces.',
+  })
+  //@UseGuards(JwtGuard)
+  @HttpCode(200)
+  @Post('buySpaces')
+  async buySpaces(@Body() body: CreateTransactionDto) {
+    const priceId = PlanIds[body.priceId as keyof typeof PlanIds];
+    if (priceId === undefined) return { message: 'Invalid priceId' };
+    const resp = await this.spacesService.handler({
+      priceId,
+      userId: body.userId,
+    });
     return resp;
   }
 }
