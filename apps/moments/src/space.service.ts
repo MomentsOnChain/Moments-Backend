@@ -3,21 +3,17 @@ import { ConfigService } from '@nestjs/config';
 
 import { v4 } from 'uuid';
 // import { cacheDatabase } from '@app/sqlite';
-import Stripe from 'stripe';
 import { CreateTransactionDto } from '@app/mongoose';
+import { stripe } from 'libs/stripe/stripe';
 
 @Injectable()
 export class SpacesService {
   constructor(private config: ConfigService) {}
-  stripe = new Stripe(this.config.getOrThrow('STRIPE_SEC_KEY'), {
-    apiVersion: '2022-11-15',
-  });
-
   async handler(data: CreateTransactionDto) {
     const { priceId, userId } = data;
     const id = v4();
     const frontendURL = this.config.getOrThrow('FrontEndUrl');
-    const stripeSession = await this.stripe.checkout.sessions.create({
+    const stripeSession = await stripe.checkout.sessions.create({
       line_items: [
         {
           price: priceId,
