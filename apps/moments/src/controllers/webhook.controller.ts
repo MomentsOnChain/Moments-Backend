@@ -66,16 +66,26 @@ export class WebhookController {
         // Get the product ID
         console.log(session?.line_items?.data[0]?.price?.product, 'product 1');
 
-        if (!sessionObject?.metadata?.userId)
+        if (!sessionObject?.metadata?.userId) {
+          console.log('no user id found');
           return res.status(400).send('No user found');
-        if (!sessionObject?.metadata?.transactionId)
+        }
+        if (!sessionObject?.metadata?.transactionId) {
+          console.log('no transaction id found');
           return res.status(400).send('No transaction found');
-        if (!session?.line_items?.data[0].quantity)
+        }
+        if (!session?.line_items?.data[0].quantity) {
+          console.log('no quantity found');
           return res.status(400).send('No quantity found');
-        if (!session?.line_items?.data[0]?.price?.product)
+        }
+        if (!session?.line_items?.data[0]?.price?.product) {
+          console.log('no product found');
           return res.status(400).send('No product found');
-        if (sessionObject.amount_total === null)
+        }
+        if (sessionObject.amount_total === null) {
+          console.log('no amount found');
           return res.status(400).send('No amount found');
+        }
 
         // if (!(await cacheDb.get(sessionObject.metadata.transactionId))) {
         //   return res.status(400).send('Already claimed');
@@ -91,6 +101,64 @@ export class WebhookController {
           paymentSucceeded: false,
           provider: 'stripe',
           paymentId: sessionObject.id,
+          transactionStatus: TransactionStatus.Pending,
+        });
+        console.log('Transaction created');
+        // await cacheDb.delete(sessionObject.metadata.transactionId);
+        break;
+      case 'payment_intent.succeeded':
+        console.log('payment_intent.succeeded');
+        const paymentIObject = event.data.object as Stripe.Checkout.Session;
+        const psession = await stripe.checkout.sessions.retrieve(
+          paymentIObject.id,
+          {
+            expand: ['line_items'],
+          },
+        );
+        if (!psession) {
+          console.log('session not found');
+          return res.status(400).send('No session found');
+        }
+        // Get the quantity
+        console.log(psession?.line_items?.data[0].quantity, 'quantity 1');
+        // Get the product ID
+        console.log(psession?.line_items?.data[0]?.price?.product, 'product 1');
+
+        if (!paymentIObject?.metadata?.userId) {
+          console.log('no user id found');
+          return res.status(400).send('No user found');
+        }
+        if (!paymentIObject?.metadata?.transactionId) {
+          console.log('no transaction id found');
+          return res.status(400).send('No transaction found');
+        }
+        if (!psession?.line_items?.data[0].quantity) {
+          console.log('no quantity found');
+          return res.status(400).send('No quantity found');
+        }
+        if (!psession?.line_items?.data[0]?.price?.product) {
+          console.log('no product found');
+          return res.status(400).send('No product found');
+        }
+        if (paymentIObject.amount_total === null) {
+          console.log('no amount found');
+          return res.status(400).send('No amount found');
+        }
+
+        // if (!(await cacheDb.get(paymentIObject.metadata.transactionId))) {
+        //   return res.status(400).send('Already claimed');
+        // }
+
+        const iid = new SchemaTypes.ObjectId(paymentIObject.metadata.userId);
+        await this.tService.create({
+          userId: iid as unknown as Types.ObjectId,
+          transactionId: paymentIObject.metadata.transactionId,
+          amount: paymentIObject.amount_total,
+          spacesCount: psession.line_items.data[0].quantity,
+          stripeProductId: psession.line_items.data[0].price.product as string,
+          paymentSucceeded: false,
+          provider: 'stripe',
+          paymentId: paymentIObject.id,
           transactionStatus: TransactionStatus.Pending,
         });
         console.log('Transaction created');
