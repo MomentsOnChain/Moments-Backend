@@ -3,16 +3,13 @@ import { ConfigService } from '@nestjs/config';
 
 import { v4 } from 'uuid';
 // import { cacheDatabase } from '@app/sqlite';
-import { CreateTransactionDto, TransactionService } from '@app/mongoose';
+import { CreateTransactionDto } from '@app/mongoose';
 import { stripe } from 'libs/stripe/stripe';
 import cacheDb from '../../../libs/sqlite/sqlite';
 
 @Injectable()
 export class SpacesService {
-  constructor(
-    private config: ConfigService,
-    private tService: TransactionService,
-  ) {}
+  constructor(private config: ConfigService) {}
   async handler(data: CreateTransactionDto) {
     const { priceId, userId, spaces } = data;
     const id = v4();

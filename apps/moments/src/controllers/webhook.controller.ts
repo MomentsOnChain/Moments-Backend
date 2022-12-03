@@ -7,7 +7,6 @@ import {
   Res,
   RawBodyRequest,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { stripe } from 'libs/stripe/stripe';
 import Stripe from 'stripe';
@@ -16,7 +15,6 @@ import { MongoSpacesService, TransactionService } from '@app/mongoose';
 import { TransactionStatus } from '@config/transaction.enums';
 import cacheDb from '../../../../libs/sqlite/sqlite';
 
-@ApiTags('Stripe Webhook')
 @Controller()
 export class WebhookController {
   constructor(
@@ -24,6 +22,7 @@ export class WebhookController {
     private readonly tService: TransactionService,
     private readonly config: ConfigService,
   ) {}
+  transactionMap = new Map();
   @HttpCode(200)
   @Post('/webhook')
   async handler(
@@ -48,12 +47,17 @@ export class WebhookController {
     switch (event.type) {
       case 'checkout.session.completed':
         let checkout = event.data.object as Stripe.Checkout.Session;
+        const transactionId = checkout?.metadata?.transactionId;
         if (!checkout?.metadata?.transactionId || !checkout?.metadata?.userId) {
           return res
             .status(400)
             .send('checkout.session.completed: no metadata');
         }
-
+        const transaction = this.transactionMap.get(transactionId);
+        if (transaction?.seen) {
+          return res.status(200).send({ message: 'Payment already claimed.' });
+        }
+        this.transactionMap.set(transactionId, { seen: true });
         // Save an order in your database, marked as 'awaiting payment'
         await this.tService.create({
           userId: checkout.metadata.userId as any,
@@ -100,23 +104,17 @@ export class WebhookController {
   async fullFillOrder(session: Stripe.Checkout.Session) {
     const transactionId = session?.metadata?.transactionId;
     const userId = session?.metadata?.userId;
-    if (!transactionId) {
-      return;
-    }
+    if (!transactionId) return;
+    const data = await cacheDb.get(transactionId);
+    if (!data) return;
+    cacheDb.delete(transactionId);
+
     const sessionS = await stripe.checkout.sessions.retrieve(session.id, {
       expand: ['line_items'],
     });
 
     const quantity = sessionS.line_items?.data[0].quantity;
-    if (!quantity) {
-      return;
-    }
-
-    const data = await cacheDb.get(transactionId);
-    if (!data) {
-      return;
-    }
-    cacheDb.delete(transactionId);
+    if (!quantity) return;
 
     const amount = session.amount_total;
     const dbTId = await this.tService.updateOneByUid(

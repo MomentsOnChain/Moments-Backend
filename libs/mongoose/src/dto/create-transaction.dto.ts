@@ -20,6 +20,5 @@ export class CreateTransactionDto {
   @IsString()
   userId!: string;
 
-  @ApiProperty()
   spaces!: number;
 }

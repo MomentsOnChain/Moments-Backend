@@ -52,46 +52,4 @@ export class ApiService {
     if (!a) return { message: 'User not found' };
     return a;
   }
-
-  async handler(data: any) {
-    const { userId, spacesCount, amount, quantity, priceId } = data;
-    const id = v4();
-    const stripeSession = await this.stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price: priceId,
-          adjustable_quantity: {
-            enabled: true,
-            minimum: 1,
-            maximum: 100,
-          },
-        },
-      ],
-      mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL}/transaction/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/transaction/cancel`,
-      payment_intent_data: {
-        metadata: {
-          userId,
-          spacesCount,
-          transactionId: id,
-          createdAt: Date.now(),
-          quantity,
-          amount,
-        },
-      },
-    });
-
-    // todo complete cache db
-    // await cacheDatabase.set(id, {
-    //   userId,
-    //   amount,
-    //   createdAt: Date.now(),
-    //   spacesCount,
-    //   provider: 'stripe',
-    //   quantity,
-    //   transactionId: id,
-    // });
-    return stripeSession;
-  }
 }

@@ -1,4 +1,4 @@
-import { CreateTransactionDto } from '@app/mongoose';
+import { CreateTransactionDto, MongoSpacesService } from '@app/mongoose';
 import {
   Body,
   Controller,
@@ -23,6 +23,7 @@ export class SpacesController {
   constructor(
     private readonly apiService: ApiService,
     private readonly spacesService: SpacesService, // @Inject(MicroServices.Processor) // private readonly communicationClient: ClientProxy,
+    private readonly sService: MongoSpacesService,
   ) {
     // todo: add logic and integration with microservice for stripe payment
   }
@@ -32,11 +33,11 @@ export class SpacesController {
     status: 200,
     description: 'Returns all of the spaces bought by authenticated user.',
   })
-  @UseGuards(JwtGuard)
+  // @UseGuards(JwtGuard)
   @HttpCode(200)
-  @Get('mySpaces')
+  @Get('mySpaces/:id')
   async getMySpace(@Param('id') id: string) {
-    const resp = await this.apiService.getUser(id);
+    const resp = await this.sService.findByUid(id);
     return resp;
   }
 
