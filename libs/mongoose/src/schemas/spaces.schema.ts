@@ -9,7 +9,7 @@ export const SpacesSchema = new Schema(
       auto: true,
     },
     spaceName: {
-      required: true,
+      // required: true,
       type: SchemaTypes.String,
     },
     userId: {

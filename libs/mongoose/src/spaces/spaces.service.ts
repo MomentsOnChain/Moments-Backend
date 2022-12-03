@@ -2,36 +2,31 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import type { CreateTransactionDto } from '../dto/create-transaction.dto';
-import {
-  ITransaction,
-  TransactionSchemaName,
-} from '../schemas/transaction.schema';
+import { ISpaces, SpacesSchemaName } from '../schemas/spaces.schema';
 
 @Injectable()
 export class MongoSpacesService {
   constructor(
-    @InjectModel(TransactionSchemaName)
-    private transactionModel: Model<ITransaction>,
+    @InjectModel(SpacesSchemaName)
+    private spacesModel: Model<ISpaces>,
   ) {}
 
   async bulkWrite(operations: any[]) {
-    return this.transactionModel.bulkWrite(operations);
+    return this.spacesModel.bulkWrite(operations);
   }
 
-  async create(
-    createTransactionDto: CreateTransactionDto,
-  ): Promise<ITransaction> {
-    const createdTransaction = await new this.transactionModel(
+  async create(createTransactionDto: any): Promise<ISpaces> {
+    const createdSpaces = await new this.spacesModel(
       createTransactionDto,
     ).save();
-    return createdTransaction;
+    return createdSpaces;
   }
 
   async findOneByUid(userId: string) {
-    return this.transactionModel.findOne({ userId }).exec();
+    return this.spacesModel.findOne({ userId }).exec();
   }
+
   async findByUid(userId: string) {
-    return this.transactionModel.find({ userId }).exec();
+    return this.spacesModel.find({ userId }).exec();
   }
 }

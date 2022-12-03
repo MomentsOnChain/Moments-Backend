@@ -1,4 +1,11 @@
-import { UserModule, UserService } from '@app/mongoose';
+import {
+  UserModule,
+  UserService,
+  TransactionModule,
+  TransactionService,
+  SpacesModule,
+  MongoSpacesService,
+} from '@app/mongoose';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -9,7 +16,11 @@ import { MicroServices } from '../../../config/tcp.enums';
 import { Connection } from 'mongoose';
 import { ApiService } from './api.service';
 import { AuthModule } from './auth/auth.module';
-import { UserController, SpacesController, WebhookController } from './controllers';
+import {
+  UserController,
+  SpacesController,
+  WebhookController,
+} from './controllers';
 import { SpacesService } from './space.service';
 const logger = new Logger('AppModule');
 
@@ -52,9 +63,18 @@ const clients = ClientsModule.register([
     clients,
     UserModule,
     AuthModule,
+    TransactionModule,
+    SpacesModule,
   ],
   controllers: [SpacesController, UserController, WebhookController],
-  providers: [UserService, ApiService, JwtService, SpacesService],
+  providers: [
+    UserService,
+    ApiService,
+    JwtService,
+    SpacesService,
+    TransactionService,
+    MongoSpacesService,
+  ],
   exports: [clients],
 })
-export class AppModule { }
+export class AppModule {}

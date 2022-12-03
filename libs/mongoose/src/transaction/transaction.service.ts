@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import type { CreateTransactionDto } from '../dto/create-transaction.dto';
 import {
   ITransaction,
   TransactionSchemaName,
@@ -19,11 +18,9 @@ export class TransactionService {
     return this.transactionModel.bulkWrite(operations);
   }
 
-  async create(
-    createTransactionDto: CreateTransactionDto,
-  ): Promise<ITransaction> {
+  async create(createTransaction: ITransaction): Promise<ITransaction> {
     const createdTransaction = await new this.transactionModel(
-      createTransactionDto,
+      createTransaction,
     ).save();
     return createdTransaction;
   }
@@ -34,5 +31,11 @@ export class TransactionService {
 
   async findByUid(userId: string) {
     return this.transactionModel.find({ userId }).exec();
+  }
+
+  async updateOneByUid(transactionId: string, update: any) {
+    return this.transactionModel
+      .findOneAndUpdate({ transactionId }, update)
+      .exec();
   }
 }

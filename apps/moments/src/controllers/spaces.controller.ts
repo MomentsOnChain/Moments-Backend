@@ -16,6 +16,7 @@ import { ApiService } from '../api.service';
 import { JwtGuard } from '../auth/guard';
 import { SpacesService } from '../space.service';
 import { PlanIds } from '@config/plans';
+
 @ApiTags('Spaces')
 @Controller('spaces')
 export class SpacesController {

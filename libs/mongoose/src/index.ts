@@ -9,3 +9,6 @@ export * from './transaction/transaction.service';
 
 export * from './user/user.module';
 export * from './user/user.service';
+
+export * from './spaces/spaces.module';
+export * from './spaces/spaces.service';

@@ -15,5 +15,8 @@
     "Fastify",
     "microservices",
     "nestjs"
-  ]
+  ],
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

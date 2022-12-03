@@ -6,7 +6,10 @@ export const TransactionSchema = new Schema(
   {
     _id: {
       type: SchemaTypes.ObjectId,
-      auto: true,
+    },
+    transactionId: {
+      type: SchemaTypes.String,
+      required: true,
     },
     userId: {
       required: true,
@@ -20,7 +23,7 @@ export const TransactionSchema = new Schema(
       required: true,
       type: SchemaTypes.Number,
     },
-    paymentStatus: {
+    paymentSucceeded: {
       required: true,
       type: SchemaTypes.Boolean,
     },
@@ -34,6 +37,10 @@ export const TransactionSchema = new Schema(
     },
     stripeProductId: {
       type: SchemaTypes.String,
+      required: true,
+    },
+    transactionStatus: {
+      type: SchemaTypes.Number,
       required: true,
     },
   },

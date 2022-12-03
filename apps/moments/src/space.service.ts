@@ -5,6 +5,7 @@ import { v4 } from 'uuid';
 // import { cacheDatabase } from '@app/sqlite';
 import { CreateTransactionDto } from '@app/mongoose';
 import { stripe } from 'libs/stripe/stripe';
+import cacheDb from '../../../libs/sqlite/sqlite';
 
 @Injectable()
 export class SpacesService {
@@ -37,15 +38,11 @@ export class SpacesService {
         },
       },
     });
-    // await cacheDatabase.set(id, {
-    //   userId,
-    //   amount,
-    //   createdAt: Date.now(),
-    //   spacesCount,
-    //   provider: 'stripe',
-    //   quantity,
-    //   transactionId: id,
-    // });
+    cacheDb.set(id, {
+      userId,
+      transactionId: id,
+      createdAt: Date.now(),
+    });
     return stripeSession.url;
   }
 }
