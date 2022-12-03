@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { v4 } from 'uuid';
-import process from 'node:process';
-// import { cacheDatabase } from '@app/sqlite';
 import Stripe from 'stripe';
 import { UserService } from '@app/mongoose';
 
