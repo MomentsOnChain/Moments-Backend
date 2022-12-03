@@ -15,7 +15,6 @@ export class SpacesService {
   ) {}
   async handler(data: CreateTransactionDto) {
     const { priceId, userId, spaces } = data;
-    console.log('spaces', spaces);
     const id = v4();
     const frontendURL = this.config.getOrThrow('FrontEndUrl');
     const stripeSession = await stripe.checkout.sessions.create({

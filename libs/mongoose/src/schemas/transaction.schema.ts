@@ -40,7 +40,5 @@ export const TransactionSchema = new Schema(
   },
   { timestamps: true },
 );
-TransactionSchema.post('updateOne', (doc) => {
-  console.log(doc, 'doc created');
-});
+
 export type ITransaction = InferSchemaType<typeof TransactionSchema>;
