@@ -15,7 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { MongoSpacesService, TransactionService } from '@app/mongoose';
 import { SchemaTypes, Types } from 'mongoose';
 import { TransactionStatus } from '@config/transaction.enums';
-import cacheDb from '../../../../libs/sqlite/sqlite';
+// import cacheDb from '../../../../libs/sqlite/sqlite';
 
 @ApiTags('Stripe Webhook')
 @Controller()
@@ -77,9 +77,9 @@ export class WebhookController {
         if (sessionObject.amount_total === null)
           return res.status(400).send('No amount found');
 
-        if (!(await cacheDb.get(sessionObject.metadata.transactionId))) {
-          return res.status(400).send('Already claimed');
-        }
+        // if (!(await cacheDb.get(sessionObject.metadata.transactionId))) {
+        //   return res.status(400).send('Already claimed');
+        // }
 
         const id = new SchemaTypes.ObjectId(sessionObject.metadata.userId);
         await this.tService.create({
@@ -94,7 +94,7 @@ export class WebhookController {
           transactionStatus: TransactionStatus.Pending,
         });
         console.log('Transaction created');
-        await cacheDb.delete(sessionObject.metadata.transactionId);
+        // await cacheDb.delete(sessionObject.metadata.transactionId);
         break;
       case 'charge.succeeded':
         console.log('charge.succeeded');

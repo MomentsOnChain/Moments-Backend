@@ -1,22 +1,19 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import {
-  TransactionSchema,
-  TransactionSchemaName,
-} from '../schemas/transaction.schema';
+import { SpacesSchema, SpacesSchemaName } from '../schemas/spaces.schema';
 import { MongoSpacesService } from './spaces.service';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: TransactionSchemaName, schema: TransactionSchema },
+      { name: SpacesSchemaName, schema: SpacesSchema },
     ]),
   ],
   exports: [
     MongoSpacesService,
     MongooseModule.forFeature([
-      { name: TransactionSchemaName, schema: TransactionSchema },
+      { name: SpacesSchemaName, schema: SpacesSchema },
     ]),
   ],
   providers: [MongoSpacesService],
