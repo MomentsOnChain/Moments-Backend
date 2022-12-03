@@ -9,7 +9,7 @@ import { MicroServices } from '../../../config/tcp.enums';
 import { Connection } from 'mongoose';
 import { ApiService } from './api.service';
 import { AuthModule } from './auth/auth.module';
-import { UserController, SpacesController } from './controllers';
+import { UserController, SpacesController, WebhookController } from './controllers';
 import { SpacesService } from './space.service';
 const logger = new Logger('AppModule');
 
@@ -53,8 +53,8 @@ const clients = ClientsModule.register([
     UserModule,
     AuthModule,
   ],
-  controllers: [SpacesController, UserController],
+  controllers: [SpacesController, UserController, WebhookController],
   providers: [UserService, ApiService, JwtService, SpacesService],
   exports: [clients],
 })
-export class AppModule {}
+export class AppModule { }

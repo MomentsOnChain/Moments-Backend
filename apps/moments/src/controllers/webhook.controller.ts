@@ -7,6 +7,7 @@ import {
   Req,
   Res,
   RawBodyRequest,
+  Get,
 } from '@nestjs/common';
 import { ApiService } from '../api.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -17,20 +18,20 @@ import { ConfigService } from '@nestjs/config';
 
 @ApiTags('Stripe Webhook')
 @Controller()
-export class UserController {
+export class WebhookController {
   constructor(
     private readonly apiService: ApiService,
     private readonly config: ConfigService,
-  ) {}
+  ) { }
   @HttpCode(200)
   @Post('/webhook')
   async handler(
-    @Param('email') @Req() req: RawBodyRequest<FastifyRequest>,
+    @Req() req: RawBodyRequest<FastifyRequest>,
     @Res() res: FastifyReply,
   ) {
     if (req.method !== 'POST') {
       res.header('Allow', 'POST');
-      res.status(405).send('Method Not Allowed');
+      res.status(405).send({ message: 'Method Not Allowed' });
       return;
     }
     const sig = req.headers['stripe-signature'] as string;
@@ -44,12 +45,12 @@ export class UserController {
         this.config.getOrThrow('endpointSecret'),
       );
     } catch (err: any) {
-      res.status(400).send(`Webhook Error: ${err.message}`);
+      console.log(`Webhook Error: ${err.message}`);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
     if (event.type !== 'charge.succeeded') {
-      res.status(400).send('Not a charge succeeded event');
-      return;
+      return res.status(400).send('Not a charge succeeded event');
     }
 
     // Handle the event
