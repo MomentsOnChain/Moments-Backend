@@ -3,15 +3,19 @@ import { ConfigService } from '@nestjs/config';
 
 import { v4 } from 'uuid';
 // import { cacheDatabase } from '@app/sqlite';
-import { CreateTransactionDto } from '@app/mongoose';
+import { CreateTransactionDto, TransactionService } from '@app/mongoose';
 import { stripe } from 'libs/stripe/stripe';
-// import cacheDb from '../../../libs/sqlite/sqlite';
+import cacheDb from '../../../libs/sqlite/sqlite';
 
 @Injectable()
 export class SpacesService {
-  constructor(private config: ConfigService) {}
+  constructor(
+    private config: ConfigService,
+    private tService: TransactionService,
+  ) {}
   async handler(data: CreateTransactionDto) {
-    const { priceId, userId } = data;
+    const { priceId, userId, spaces } = data;
+    console.log('spaces', spaces);
     const id = v4();
     const frontendURL = this.config.getOrThrow('FrontEndUrl');
     const stripeSession = await stripe.checkout.sessions.create({
@@ -26,23 +30,19 @@ export class SpacesService {
           },
         },
       ],
-
       mode: 'payment',
       success_url: `${frontendURL}/transaction/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${frontendURL}/transaction/cancel`,
-      payment_intent_data: {
-        metadata: {
-          userId,
-          transactionId: id,
-          createdAt: Date.now(),
-        },
+      metadata: {
+        userId,
+        transactionId: id,
+        spacesCount: spaces,
       },
     });
-    // cacheDb.set(id, {
-    //   userId,
-    //   transactionId: id,
-    //   createdAt: Date.now(),
-    // });
+    cacheDb.set(id, {
+      userId,
+      transactionId: id,
+    });
     return stripeSession.url;
   }
 }

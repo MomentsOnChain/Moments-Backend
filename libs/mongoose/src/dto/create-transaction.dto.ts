@@ -19,4 +19,7 @@ export class CreateTransactionDto {
   @IsNotEmpty()
   @IsString()
   userId!: string;
+
+  @ApiProperty()
+  spaces!: number;
 }

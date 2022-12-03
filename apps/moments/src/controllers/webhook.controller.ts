@@ -13,7 +13,6 @@ import { stripe } from 'libs/stripe/stripe';
 import Stripe from 'stripe';
 import { ConfigService } from '@nestjs/config';
 import { MongoSpacesService, TransactionService } from '@app/mongoose';
-import { SchemaTypes, Types } from 'mongoose';
 import { TransactionStatus } from '@config/transaction.enums';
 import cacheDb from '../../../../libs/sqlite/sqlite';
 
@@ -42,88 +41,108 @@ export class WebhookController {
         this.config.getOrThrow('endpointSecret'),
       );
     } catch (err: any) {
-      console.log(`Webhook Error: ${err.message}`);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
     // Handle the event
     switch (event.type) {
-      case 'charge.succeeded':
-        console.log('charge.succeeded', event);
-        const chargeObject = event.data.object as Stripe.Charge;
-        // Fulfill the purchase...
-        const charge = await stripe.checkout.sessions.retrieve(
-          chargeObject.id,
-          {
-            expand: ['line_items'],
-          },
-        );
-        if (!charge) {
-          // make transaction status failed
-          console.log('session not found');
-          return res.status(400).send('No session found');
-        }
-        // Get the quantity
-        console.log(charge?.line_items?.data[0].quantity, 'quantity 2');
-        // Get the product ID
-        console.log(charge?.line_items?.data[0]?.price?.product, 'product 2');
-        if (!chargeObject?.metadata?.transactionId)
-          return res.status(400).send('No transaction found');
-        if (!chargeObject?.metadata?.userId)
-          return res.status(400).send('No user found');
-
-        const transaction = await this.tService.updateOneByUid(
-          chargeObject.metadata.transactionId,
-          {
-            paymentSucceeded: true,
-            transactionStatus: TransactionStatus.Success,
-          },
-        );
-        const uId = new SchemaTypes.ObjectId(chargeObject.metadata.userId);
-        if (!transaction) {
-          console.log('transaction not found');
-          return res.status(400).send('No transaction found');
+      case 'checkout.session.completed':
+        let checkout = event.data.object as Stripe.Checkout.Session;
+        if (!checkout?.metadata?.transactionId || !checkout?.metadata?.userId) {
+          return res
+            .status(400)
+            .send('checkout.session.completed: no metadata');
         }
 
-        const tId = transaction._id;
-        this.sService.create({
-          userId: uId as unknown as Types.ObjectId,
-          transactionId: tId,
-          spacesSize: 100,
-        });
-        break;
-      case 'charge.failed':
-        console.log('charge.failed');
-        const failedObject = event.data.object as Stripe.Charge;
-        // Fulfill the purchase...
-        const failed = await stripe.checkout.sessions.retrieve(
-          failedObject.id,
-          {
-            expand: ['line_items'],
-          },
-        );
-        if (!failed) {
-          // make transaction status failed
-          console.log('session not found');
-          return res.status(400).send('No session found');
-        }
-        // Get the quantity
-        console.log(failed?.line_items?.data[0].quantity, 'quantity 3');
-        // Get the product ID
-        console.log(failed?.line_items?.data[0]?.price?.product, 'product 3');
-        if (!failedObject?.metadata?.transactionId)
-          return res.status(400).send('No transaction found');
-
-        this.tService.updateOneByUid(failedObject.metadata.transactionId, {
+        // Save an order in your database, marked as 'awaiting payment'
+        await this.tService.create({
+          userId: checkout.metadata.userId as any,
+          transactionId: checkout.metadata.transactionId,
+          amount: null as any,
+          spacesCount: null as any,
+          stripeProductId: checkout.metadata.stripeProductId as any,
           paymentSucceeded: false,
+          provider: 'stripe',
+          paymentId: null as any,
+          transactionStatus: TransactionStatus.Pending,
+        });
+
+        if (checkout.payment_status == 'paid')
+          await this.fullFillOrder(checkout);
+        break;
+
+      case 'checkout.session.async_payment_succeeded':
+        checkout = event.data.object as Stripe.Checkout.Session;
+        if (!checkout?.metadata?.transactionId || !checkout?.metadata?.userId) {
+          return res
+            .status(400)
+            .send('checkout.session.async_payment_succeeded: no metadata');
+        }
+        await this.fullFillOrder(checkout);
+        break;
+
+      case 'checkout.session.async_payment_failed':
+        checkout = event.data.object as Stripe.Checkout.Session;
+        if (!checkout?.metadata?.transactionId || !checkout?.metadata?.userId) {
+          return res
+            .status(400)
+            .send('checkout.session.async_payment_failed: no metadata');
+        }
+        await this.tService.updateOneByUid(checkout.metadata.transactionId, {
           transactionStatus: TransactionStatus.Failed,
         });
         break;
-
       // ... handle other event types
-      default:
-        console.log(`Unhandled event type ${event.type}`);
     }
     res.status(200).send('Success');
+  }
+
+  async fullFillOrder(session: Stripe.Checkout.Session) {
+    const transactionId = session?.metadata?.transactionId;
+    const userId = session?.metadata?.userId;
+    if (!transactionId) {
+      return;
+    }
+    const sessionS = await stripe.checkout.sessions.retrieve(session.id, {
+      expand: ['line_items'],
+    });
+
+    const quantity = sessionS.line_items?.data[0].quantity;
+    if (!quantity) {
+      return;
+    }
+
+    const data = await cacheDb.get(transactionId);
+    if (!data) {
+      return;
+    }
+    cacheDb.delete(transactionId);
+
+    const amount = session.amount_total;
+    const dbTId = await this.tService.updateOneByUid(
+      session?.metadata?.transactionId ?? '',
+      {
+        paymentSucceeded: true,
+        paymentId: session?.payment_intent,
+        transactionStatus: TransactionStatus.Success,
+        amount,
+        spacesCount: quantity,
+      },
+    );
+
+    const prs = [];
+    for (let i = 0; i < quantity; i++) {
+      prs.push({
+        insertOne: {
+          document: {
+            userId: userId as any,
+            transactionId: dbTId as any,
+            spaceSize: session?.metadata?.spacesCount as any,
+            isMinted: false,
+          },
+        },
+      });
+    }
+    await this.sService.bulkWrite(prs);
   }
 }

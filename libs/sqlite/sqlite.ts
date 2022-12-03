@@ -1,9 +1,9 @@
 import Keyv from 'keyv';
 
 export default new Keyv<{
+  docId?: string;
   userId: string;
   amount?: number;
-  createdAt: number;
   spacesCount?: number;
   provider?: 'stripe';
   quantity?: number;

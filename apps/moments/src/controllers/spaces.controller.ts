@@ -52,7 +52,8 @@ export class SpacesController {
     const priceId = PlanIds[body.priceId as keyof typeof PlanIds];
     if (priceId === undefined) return { message: 'Invalid priceId' };
     const resp = await this.spacesService.handler({
-      priceId,
+      priceId: priceId.id,
+      spaces: priceId.spaces,
       userId: body.userId,
     });
     return resp;

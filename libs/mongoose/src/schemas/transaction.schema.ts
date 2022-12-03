@@ -6,6 +6,7 @@ export const TransactionSchema = new Schema(
   {
     _id: {
       type: SchemaTypes.ObjectId,
+      auto: true,
     },
     transactionId: {
       type: SchemaTypes.String,
@@ -16,35 +17,30 @@ export const TransactionSchema = new Schema(
       type: SchemaTypes.ObjectId,
     },
     amount: {
-      required: true,
       type: SchemaTypes.Number,
     },
     spacesCount: {
-      required: true,
       type: SchemaTypes.Number,
     },
     paymentSucceeded: {
-      required: true,
       type: SchemaTypes.Boolean,
     },
     provider: {
-      required: true,
       type: SchemaTypes.String,
     },
     paymentId: {
-      required: true,
       type: SchemaTypes.String,
     },
     stripeProductId: {
       type: SchemaTypes.String,
-      required: true,
     },
     transactionStatus: {
       type: SchemaTypes.Number,
-      required: true,
     },
   },
   { timestamps: true },
 );
-
+TransactionSchema.post('updateOne', (doc) => {
+  console.log(doc, 'doc created');
+});
 export type ITransaction = InferSchemaType<typeof TransactionSchema>;

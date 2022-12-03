@@ -20,7 +20,7 @@ export const SpacesSchema = new Schema(
       required: true,
       type: SchemaTypes.ObjectId,
     },
-    spacesSize: {
+    spaceSize: {
       type: SchemaTypes.Number,
       default: 100,
     },
