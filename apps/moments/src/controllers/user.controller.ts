@@ -32,4 +32,17 @@ export class UserController {
     const resp = await this.apiService.getUserByMail(id);
     return resp;
   }
+
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Returns a signed url for s3 upload',
+  })
+  @HttpCode(200)
+  @Get('signedUrl/:_id')
+  async generateSignedUrl(@Param('_id') id: string) {
+    const resp = await this.apiService.generateSignedUrl(id);
+    if (!resp) return { message: 'Something went wrong. Try again later.' };
+    return { url: resp };
+  }
 }
