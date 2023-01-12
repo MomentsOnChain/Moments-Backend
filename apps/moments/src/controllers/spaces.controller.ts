@@ -38,12 +38,12 @@ export class SpacesController {
     return resp;
   }
 
-  //@ApiBearerAuth()
+  @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     description: 'Buy spaces.',
   })
-  @UseGuards(JwtGuard)
+  // @UseGuards(JwtGuard)
   @HttpCode(200)
   @Post('buySpaces')
   async buySpaces(@Body() body: CreateTransactionDto) {

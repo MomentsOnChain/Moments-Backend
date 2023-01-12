@@ -141,6 +141,10 @@ export class WebhookController {
         },
       });
     }
-    await this.sService.bulkWrite(prs);
+    const res = await this.sService.bulkWrite(prs);
+
+    // create s3 folder
+    for (let i = 0; i < res.insertedCount; i++)
+      await this.sService.createS3Folder(res.insertedIds[i]);
   }
 }
