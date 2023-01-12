@@ -142,9 +142,11 @@ export class WebhookController {
       });
     }
     const res = await this.sService.bulkWrite(prs);
-
+    console.log(res);
     // create s3 folder
-    for (let i = 0; i < res.insertedCount; i++)
+    for (let i = 0; i < res.insertedCount; i++) {
+      console.log(res.insertedIds[i]);
       await this.sService.createS3Folder(res.insertedIds[i]);
+    }
   }
 }
