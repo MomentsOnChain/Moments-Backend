@@ -146,7 +146,7 @@ export class WebhookController {
     // create s3 folder
     for (let i = 0; i < res.insertedCount; i++) {
       console.log(res.insertedIds[i]);
-      await this.sService.createS3Folder(res.insertedIds[i]);
+      await this.sService.createS3Folder(res.insertedIds[i].toString());
     }
   }
 }
