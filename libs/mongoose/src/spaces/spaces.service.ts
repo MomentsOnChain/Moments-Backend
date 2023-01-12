@@ -38,7 +38,6 @@ export class MongoSpacesService {
       Bucket: this.config.getOrThrow('BUCKET_NAME'),
       Key: `${folderId}/`,
       Body: '',
-      ContentType: 'application/x-directory',
     });
   }
 }
