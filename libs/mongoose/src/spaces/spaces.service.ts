@@ -34,10 +34,12 @@ export class MongoSpacesService {
   }
 
   async createS3Folder(folderId: string) {
-    return s3.putObject({
-      Bucket: this.config.getOrThrow('BUCKET_NAME'),
-      Key: `${folderId}/`,
-      Body: '',
-    });
+    return s3
+      .putObject({
+        Bucket: this.config.getOrThrow('BUCKET_NAME'),
+        Key: `${folderId}/`,
+        Body: '',
+      })
+      .promise();
   }
 }

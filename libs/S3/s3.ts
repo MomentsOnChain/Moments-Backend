@@ -1,14 +1,21 @@
 import { S3 } from 'aws-sdk';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
+ConfigModule.forRoot({
+  isGlobal: true,
+  envFilePath: '.env',
+});
+
+const config = new ConfigService();
 export const s3 = new S3({
-  accessKeyId: process.env.accessKeyId,
-  secretAccessKey: process.env.secretAccessKey,
-  region: process.env.region,
+  accessKeyId: config.getOrThrow('accessKeyId'),
+  secretAccessKey: config.getOrThrow('secretAccessKey'),
+  region: config.getOrThrow('region'),
 });
 
 export const getSpaceImages = async (spaceId: string) => {
   const params = {
-    Bucket: process.env.BUCKET_NAME!,
+    Bucket: config.getOrThrow('BUCKET_NAME'),
     Prefix: spaceId + '/',
   };
   const data = await s3.listObjects(params).promise();
