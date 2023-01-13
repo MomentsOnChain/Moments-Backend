@@ -16,3 +16,10 @@ export class CreateUserDto {
   @IsString()
   avatar!: string;
 }
+
+export class TokenDto {
+  @IsNotEmpty()
+  @ApiProperty()
+  @IsString()
+  token!: string;
+}
