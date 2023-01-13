@@ -29,7 +29,7 @@ export class SpacesController {
     status: 200,
     description: 'Returns all of the spaces bought by authenticated user.',
   })
-  // @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard)
   @HttpCode(200)
   @Get('mySpaces/:id')
   async getMySpace(@Param('id') id: string) {
@@ -43,7 +43,7 @@ export class SpacesController {
     status: 200,
     description: 'Buy spaces.',
   })
-  // @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard)
   @HttpCode(200)
   @Post('buySpaces')
   async buySpaces(@Body() body: CreateTransactionDto) {
