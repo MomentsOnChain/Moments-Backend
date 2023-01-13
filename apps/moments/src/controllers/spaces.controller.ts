@@ -9,16 +9,15 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { ApiService } from '../api.service';
 import { JwtGuard } from '../auth/guard';
 import { SpacesService } from '../space.service';
 import { PlanIds } from '@config/plans';
+import { generateImage } from 'libs/canvas/generateImage';
 
 @ApiTags('Spaces')
 @Controller('spaces')
 export class SpacesController {
   constructor(
-    private readonly apiService: ApiService,
     private readonly spacesService: SpacesService,
     private readonly sService: MongoSpacesService,
   ) {
@@ -30,11 +29,12 @@ export class SpacesController {
     status: 200,
     description: 'Returns all of the spaces bought by authenticated user.',
   })
-  @UseGuards(JwtGuard)
+  // @UseGuards(JwtGuard)
   @HttpCode(200)
   @Get('mySpaces/:id')
   async getMySpace(@Param('id') id: string) {
     const resp = await this.sService.findByUid(id);
+    await generateImage('63c09e2818c68eee133084fd');
     return resp;
   }
 

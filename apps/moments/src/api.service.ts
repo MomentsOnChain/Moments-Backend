@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import Stripe from 'stripe';
 import { UserService } from '@app/mongoose';
 import { s3 } from 'libs/S3/s3';
-
+import { Types } from 'mongoose';
 @Injectable()
 export class ApiService {
   constructor(
@@ -51,10 +51,15 @@ export class ApiService {
     return a;
   }
 
-  async generateSignedUrl(filename: string) {
+  async generateSignedUrl(spaceId: string, userId: string) {
+    if (!Types.ObjectId.isValid(spaceId)) {
+      return {
+        message: 'Invalid space _id',
+      };
+    }
     const params = {
       Bucket: process.env.BUCKET_NAME,
-      Key: filename,
+      Key: `${spaceId}/${userId}.jpg`,
       Expires: 60 * 5,
     };
     try {

@@ -3,7 +3,6 @@ import { ApiService } from '../api.service';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/guard';
 
-@UseGuards(JwtGuard)
 @ApiTags('User')
 @Controller('users')
 export class UserController {
@@ -14,6 +13,7 @@ export class UserController {
     status: 200,
     description: 'Returns a user object',
   })
+  @UseGuards(JwtGuard)
   @HttpCode(200)
   @Get(':_id')
   async getUser(@Param('_id') id: string) {
@@ -26,6 +26,7 @@ export class UserController {
     status: 200,
     description: 'Returns a user object with email',
   })
+  @UseGuards(JwtGuard)
   @HttpCode(200)
   @Get('email/:email')
   async getUserByMail(@Param('email') id: string) {
@@ -39,9 +40,12 @@ export class UserController {
     description: 'Returns a signed url for s3 upload',
   })
   @HttpCode(200)
-  @Get('signedUrl/:_id')
-  async generateSignedUrl(@Param('_id') id: string) {
-    const resp = await this.apiService.generateSignedUrl(id);
+  @Get('signedUrl/:_spaceId/:_userId')
+  async generateSignedUrl(
+    @Param('_spaceId') spaceId: string,
+    @Param('_userId') userId: string,
+  ) {
+    const resp = await this.apiService.generateSignedUrl(spaceId, userId);
     if (!resp) return { message: 'Something went wrong. Try again later.' };
     return { url: resp };
   }

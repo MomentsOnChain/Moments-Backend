@@ -18,6 +18,7 @@ export const getSpaceImages = async (spaceId: string) => {
     Bucket: config.getOrThrow('BUCKET_NAME'),
     Prefix: spaceId + '/',
   };
-  const data = await s3.listObjects(params).promise();
+  const data = await s3.listObjectsV2(params).promise();
+  data.Contents?.shift();
   return data.Contents;
 };
