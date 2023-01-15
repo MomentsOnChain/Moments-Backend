@@ -31,9 +31,9 @@ export class MongoSpacesService {
     return this.spacesModel.find({ userId }).lean().exec();
   }
 
-  async updateOneByUid(_id: string, object: any) {
+  async updateOneByUid(_id: string, name: string) {
     const { modifiedCount } = await this.spacesModel
-      .updateOne({ _id }, object)
+      .updateOne({ _id }, { spaceName: name })
       .lean()
       .exec();
     return modifiedCount;

@@ -74,12 +74,18 @@ export class SpacesController {
   @HttpCode(200)
   @Get('my_spaces/:space_id')
   async spaceImages(@Param('space_id') space_id: string) {
-    const spaceImages = await getSpaceImages(space_id);
+    const [space, spaceImages] = await Promise.all([
+      this.sService.findOneByUid(space_id),
+      getSpaceImages(space_id),
+    ]);
+
     if (!spaceImages) return { message: 'Space not found' };
     return {
+      spaceName: space?.spaceName ?? '',
       spaceImages: spaceImages.map(
         (image) => `https://acmmjcet-memorium.s3.amazonaws.com/${image.Key}`,
       ),
+      minted: space!.isMinted,
     };
   }
 
