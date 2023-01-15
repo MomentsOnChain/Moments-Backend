@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import Stripe from 'stripe';
@@ -9,6 +9,7 @@ import {
 } from '@app/mongoose';
 import { s3 } from 'libs/S3/s3';
 import { Types } from 'mongoose';
+const logger = new Logger('ApiService');
 
 @Injectable()
 export class ApiService {
@@ -62,7 +63,6 @@ export class ApiService {
   }
 
   async generateSignedUrl(spaceId: string, userId: string) {
-    console.log('spaceId', spaceId);
     if (!Types.ObjectId.isValid(spaceId)) {
       return {
         message: 'Invalid space _id',
@@ -102,7 +102,7 @@ export class ApiService {
       });
       return url;
     } catch (err) {
-      console.log(err);
+      logger.error(err);
       return null;
     }
   }
