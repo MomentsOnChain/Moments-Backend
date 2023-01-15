@@ -41,7 +41,7 @@ export class SpacesController {
     );
     if (!uid) return { message: 'Invalid token' };
     const resp = await this.sService.findByUid(uid);
-    await generateImage('63c09e2818c68eee133084fd');
+    await generateImage('63c09e2818c68eee133084fd', 100);
     return resp;
   }
 
@@ -53,13 +53,20 @@ export class SpacesController {
   @UseGuards(JwtGuard)
   @HttpCode(200)
   @Post('buy_spaces')
-  async buySpaces(@Body() body: CreateTransactionDto) {
+  async buySpaces(
+    @Body() body: CreateTransactionDto,
+    @Headers() headers: FastifyRequest['headers'],
+  ) {
     const priceId = PlanIds[body.priceId as keyof typeof PlanIds];
     if (priceId === undefined) return { message: 'Invalid priceId' };
+    const { uid } = await this.apiService.isAuthenticated(
+      headers.authorization,
+    );
+    if (!uid) return { message: 'Invalid token' };
     const resp = await this.spacesService.handler({
       priceId: priceId.id,
       spaces: priceId.spaces,
-      userId: body.userId,
+      userId: uid,
     });
     return resp;
   }

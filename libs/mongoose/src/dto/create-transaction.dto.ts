@@ -15,10 +15,6 @@ export class CreateTransactionDto {
   @IsEnum(prices)
   priceId!: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
   userId!: string;
-
   spaces!: number;
 }
