@@ -31,6 +31,14 @@ export class MongoSpacesService {
     return this.spacesModel.find({ userId }).lean().exec();
   }
 
+  async updateOneByUid(_id: string, object: any) {
+    const { modifiedCount } = await this.spacesModel
+      .updateOne({ _id }, object)
+      .lean()
+      .exec();
+    return modifiedCount;
+  }
+
   async createS3Folder(folderId: string) {
     return s3
       .putObject({

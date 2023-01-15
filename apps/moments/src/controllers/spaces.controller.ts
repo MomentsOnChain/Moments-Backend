@@ -7,6 +7,8 @@ import {
   Post,
   UseGuards,
   Headers,
+  Param,
+  Patch,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/guard';
@@ -15,6 +17,7 @@ import { PlanIds } from '@config/plans';
 import { generateImage } from 'libs/canvas/generateImage';
 import { FastifyRequest } from 'fastify';
 import { ApiService } from '../api.service';
+import { getSpaceImages } from 'libs/S3/s3';
 
 @ApiTags('Spaces')
 @Controller('spaces')
@@ -32,7 +35,7 @@ export class SpacesController {
     status: 200,
     description: 'Returns all of the spaces bought by authenticated user.',
   })
-  // @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard)
   @HttpCode(200)
   @Get('my_spaces')
   async getMySpace(@Headers() headers: FastifyRequest['headers']) {
@@ -43,6 +46,37 @@ export class SpacesController {
     const resp = await this.sService.findByUid(uid);
     await generateImage('63c09e2818c68eee133084fd', 100);
     return resp;
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Update the name of the space.',
+  })
+  @UseGuards(JwtGuard)
+  @HttpCode(200)
+  @Patch('my_spaces/:space_id/:space_name')
+  async updateSpaceName(
+    @Param() space_id: string,
+    @Param() space_name: string,
+  ) {
+    const resp = await this.sService.updateOneByUid(space_id, space_name);
+    if (resp === 1) return { message: 'Space name updated' };
+    return { message: 'Space not found' };
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Returns all of the images in the space.',
+  })
+  @UseGuards(JwtGuard)
+  @HttpCode(200)
+  @Get('my_spaces/:space_id')
+  async spaceImages(@Param('space_id') space_id: string) {
+    const spaceImages = await getSpaceImages(space_id);
+    if (!spaceImages) return { message: 'Space not found' };
+    return { spaceImages };
   }
 
   @ApiBearerAuth()
