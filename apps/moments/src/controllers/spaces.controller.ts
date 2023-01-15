@@ -57,8 +57,8 @@ export class SpacesController {
   @HttpCode(200)
   @Patch('my_spaces/:space_id/:space_name')
   async updateSpaceName(
-    @Param() space_id: string,
-    @Param() space_name: string,
+    @Param('space_id') space_id: string,
+    @Param('space_name') space_name: string,
   ) {
     const resp = await this.sService.updateOneByUid(space_id, space_name);
     if (resp === 1) return { message: 'Space name updated' };
