@@ -18,6 +18,12 @@ async function bootstrap() {
     new FastifyAdapter(),
     {
       rawBody: true,
+      cors: {
+        origin: '*',
+        allowedHeaders: '*',
+        methods: '*',
+        credentials: true,
+      },
     },
   );
   app.useGlobalPipes(new ValidationPipe());
