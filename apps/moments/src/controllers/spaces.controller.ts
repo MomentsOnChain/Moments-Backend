@@ -76,7 +76,11 @@ export class SpacesController {
   async spaceImages(@Param('space_id') space_id: string) {
     const spaceImages = await getSpaceImages(space_id);
     if (!spaceImages) return { message: 'Space not found' };
-    return { spaceImages };
+    return {
+      spaceImages: spaceImages.map(
+        (image) => `https://acmmjcet-memorium.s3.amazonaws.com/${image.Key}`,
+      ),
+    };
   }
 
   @ApiBearerAuth()
