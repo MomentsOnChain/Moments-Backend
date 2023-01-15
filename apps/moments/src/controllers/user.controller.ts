@@ -49,7 +49,7 @@ export class UserController {
     status: 200,
     description: 'Returns a signed url for s3 upload',
   })
-  // @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard)
   @HttpCode(200)
   @Get('signed_url/:space_id')
   async generateSignedUrl(
