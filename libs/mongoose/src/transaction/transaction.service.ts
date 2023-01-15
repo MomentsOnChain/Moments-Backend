@@ -26,16 +26,17 @@ export class TransactionService {
   }
 
   async findOneByUid(userId: string) {
-    return this.transactionModel.findOne({ userId }).exec();
+    return this.transactionModel.findOne({ userId }).lean().exec();
   }
 
   async findByUid(userId: string) {
-    return this.transactionModel.find({ userId }).exec();
+    return this.transactionModel.find({ userId }).lean().exec();
   }
 
   async updateOneByUid(transactionId: string, update: any) {
     return this.transactionModel
       .findOneAndUpdate({ transactionId }, update)
+      .lean()
       .exec();
   }
 }

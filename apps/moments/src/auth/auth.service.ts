@@ -49,7 +49,7 @@ export class AuthService {
   async _signToken(
     userId: Types.ObjectId | undefined,
     email: string | undefined,
-  ): Promise<{ access_token: string; _id: string }> {
+  ): Promise<{ access_token: string }> {
     if (!userId || !email) throw new BadRequestException('Invalid user');
     const payload = {
       uid: userId,
@@ -64,7 +64,7 @@ export class AuthService {
 
     return {
       access_token: token,
-      _id: userId.toString(),
+      // _id: userId.toString(),
     };
   }
 }

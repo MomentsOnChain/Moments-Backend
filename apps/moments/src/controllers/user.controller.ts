@@ -5,13 +5,17 @@ import { JwtGuard } from '../auth/guard';
 import { verify } from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { Body, Post } from '@nestjs/common/decorators';
-import { TokenDto } from '@app/mongoose';
+import { MongoImagesService, TokenDto } from '@app/mongoose';
+import { Headers } from '@nestjs/common';
+import { FastifyRequest } from 'fastify';
+
 @ApiTags('User')
 @Controller('users')
 export class UserController {
   constructor(
     private readonly apiService: ApiService,
     private readonly configService: ConfigService,
+    private readonly imageService: MongoImagesService,
   ) {}
 
   @ApiBearerAuth()
@@ -22,7 +26,7 @@ export class UserController {
   @UseGuards(JwtGuard)
   @HttpCode(200)
   @Get(':_id')
-  async getUser(@Param('_id') id: string) {
+  async getUser(@Param('user_id') id: string) {
     const resp = await this.apiService.getUser(id);
     return resp;
   }
@@ -45,14 +49,18 @@ export class UserController {
     status: 200,
     description: 'Returns a signed url for s3 upload',
   })
-  // @UseGuards(JwtGuard)
+  @UseGuards(JwtGuard)
   @HttpCode(200)
-  @Get('signedUrl/:_spaceId/:_userId')
+  @Get('signed_url/:space_id')
   async generateSignedUrl(
+    @Headers() headers: FastifyRequest['headers'],
     @Param('_spaceId') spaceId: string,
-    @Param('_userId') userId: string,
   ) {
-    const resp = await this.apiService.generateSignedUrl(spaceId, userId);
+    const { uid } = await this.apiService.isAuthenticated(
+      headers.authorization,
+    );
+    if (!uid) return { message: 'Invalid token' };
+    const resp = await this.apiService.generateSignedUrl(spaceId, uid);
     if (!resp) return { message: 'Something went wrong. Try again later.' };
     return { url: resp };
   }
@@ -62,7 +70,7 @@ export class UserController {
     description: 'Validate a token',
   })
   @HttpCode(200)
-  @Post('validateToken')
+  @Post('validate_token')
   async validateToken(@Body() { token }: TokenDto) {
     try {
       const resp = verify(token, this.configService.getOrThrow('JWT_SECRET'));
@@ -71,4 +79,36 @@ export class UserController {
       return { valid: false, payload: null };
     }
   }
+
+  // @ApiBearerAuth()
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Acknowledge image upload from signed url',
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       url: {
+  //         type: 'string',
+  //       },
+  //       userId: {
+  //         type: 'string',
+  //       },
+  //       spaceId: {
+  //         type: 'string',
+  //       },
+  //       metaData: {
+  //         type: 'string',
+  //       },
+  //     },
+  //   },
+  // })
+  // @UseGuards(JwtGuard)
+  // @HttpCode(200)
+  // @Post('acknowledge_image_upload')
+  // async acknowledgeImageUpload() {
+  //   // object: acknowledgeImageDto, //@Body()
+  //   return {
+  //     message: 'acknowledged',
+  //   };
+  // }
 }

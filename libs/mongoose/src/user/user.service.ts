@@ -30,7 +30,7 @@ export class UserService {
   }
 
   userExists(uid: string) {
-    return this.userModel.exists({ uid, deleted: false }).exec();
+    return this.userModel.exists({ uid, deleted: false }).lean().exec();
   }
 
   async findOneByUid(uid: string) {

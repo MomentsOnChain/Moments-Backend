@@ -5,6 +5,10 @@ import {
   TransactionService,
   SpacesModule,
   MongoSpacesService,
+  MongoSignedService,
+  SignedModule,
+  ImagesModule,
+  MongoImagesService,
 } from '@app/mongoose';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -65,6 +69,8 @@ const clients = ClientsModule.register([
     AuthModule,
     TransactionModule,
     SpacesModule,
+    SignedModule,
+    ImagesModule,
   ],
   controllers: [SpacesController, UserController, WebhookController],
   providers: [
@@ -74,6 +80,8 @@ const clients = ClientsModule.register([
     SpacesService,
     TransactionService,
     MongoSpacesService,
+    MongoSignedService,
+    MongoImagesService,
   ],
   exports: [clients],
 })

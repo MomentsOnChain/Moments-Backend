@@ -1,8 +1,8 @@
 import { Schema, SchemaTypes, type InferSchemaType } from 'mongoose';
 
-export const ImagesSchemaName = 'Images';
+export const SignedSchemaName = 'Signed';
 
-export const ImagesSchema = new Schema(
+export const SignedSchema = new Schema(
   {
     _id: {
       type: SchemaTypes.ObjectId,
@@ -12,20 +12,16 @@ export const ImagesSchema = new Schema(
       required: true,
       type: SchemaTypes.ObjectId,
     },
-    spaceId: {
+    expire: {
       required: true,
-      type: SchemaTypes.ObjectId,
+      type: SchemaTypes.Date,
     },
-    // todo: brainstorm adding block chain wallet address for event attendees
-    url: {
-      type: SchemaTypes.String,
+    signedUrl: {
       required: true,
-    },
-    metaData: {
       type: SchemaTypes.String,
     },
   },
   { timestamps: true },
 );
 
-export type IImages = InferSchemaType<typeof ImagesSchema>;
+export type ISigned = InferSchemaType<typeof SignedSchema>;

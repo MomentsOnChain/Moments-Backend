@@ -1,12 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import {
-  Controller,
-  Post,
-  HttpCode,
-  Req,
-  Res,
-  RawBodyRequest,
-} from '@nestjs/common';
+import { Controller, Post, Req, Res, RawBodyRequest } from '@nestjs/common';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { stripe } from 'libs/stripe/stripe';
 import Stripe from 'stripe';
@@ -14,7 +7,7 @@ import { ConfigService } from '@nestjs/config';
 import { MongoSpacesService, TransactionService } from '@app/mongoose';
 import { TransactionStatus } from '@config/transaction.enums';
 import cacheDb from '../../../../libs/sqlite/sqlite';
-
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 @Controller()
 export class WebhookController {
   constructor(
@@ -23,8 +16,9 @@ export class WebhookController {
     private readonly config: ConfigService,
   ) {}
   transactionMap = new Map();
-  @HttpCode(200)
+  // q: how to ignore swagger for this endpoint?
   @Post('/webhook')
+  @ApiExcludeEndpoint()
   async handler(
     @Req() req: RawBodyRequest<FastifyRequest>,
     @Res() res: FastifyReply,

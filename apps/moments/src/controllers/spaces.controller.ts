@@ -31,7 +31,7 @@ export class SpacesController {
   })
   @UseGuards(JwtGuard)
   @HttpCode(200)
-  @Get('mySpaces/:id')
+  @Get('my_spaces')
   async getMySpace(@Param('id') id: string) {
     const resp = await this.sService.findByUid(id);
     await generateImage('63c09e2818c68eee133084fd');
@@ -45,7 +45,7 @@ export class SpacesController {
   })
   @UseGuards(JwtGuard)
   @HttpCode(200)
-  @Post('buySpaces')
+  @Post('buy_spaces')
   async buySpaces(@Body() body: CreateTransactionDto) {
     const priceId = PlanIds[body.priceId as keyof typeof PlanIds];
     if (priceId === undefined) return { message: 'Invalid priceId' };

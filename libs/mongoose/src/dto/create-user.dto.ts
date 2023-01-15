@@ -23,3 +23,25 @@ export class TokenDto {
   @IsString()
   token!: string;
 }
+
+export class acknowledgeImageDto {
+  @IsNotEmpty()
+  @ApiProperty()
+  @IsString()
+  url!: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  @IsString()
+  spaceId!: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  @IsString()
+  userId!: string;
+
+  @IsNotEmpty()
+  @ApiProperty()
+  @IsString()
+  metaData!: string;
+}

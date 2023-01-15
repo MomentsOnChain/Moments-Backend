@@ -2,14 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import Stripe from 'stripe';
-import { UserService } from '@app/mongoose';
+import {
+  MongoSpacesService,
+  UserService,
+  MongoSignedService,
+} from '@app/mongoose';
 import { s3 } from 'libs/S3/s3';
 import { Types } from 'mongoose';
+
 @Injectable()
 export class ApiService {
   constructor(
     private userModule: UserService,
+    private spaceService: MongoSpacesService,
     private jwtService: JwtService,
+    private signedUrlService: MongoSignedService,
     private config: ConfigService,
   ) {}
   stripe = new Stripe(this.config.getOrThrow('STRIPE_SEC_KEY'), {
@@ -17,15 +24,18 @@ export class ApiService {
   });
 
   async isAuthenticated(token: string | undefined) {
-    if (!token) return false;
+    if (!token) return { authenticated: false };
     try {
-      const { uid } = this.jwtService.verify(token.replace(/^Bearer\s+/, ''), {
-        secret: this.config.get('JWT_SECRET'),
-      });
+      const { uid }: { uid: string } = this.jwtService.verify(
+        token.replace(/^Bearer\s+/, ''),
+        {
+          secret: this.config.get('JWT_SECRET'),
+        },
+      );
       const exists = await this.userModule.userExists(uid);
-      return !!(uid && exists);
+      return { authenticated: !!(uid && exists), uid };
     } catch (e) {
-      return false;
+      return { authenticated: false };
     }
   }
 
@@ -57,6 +67,22 @@ export class ApiService {
         message: 'Invalid space _id',
       };
     }
+
+    const [{ Contents }, space] = await Promise.all([
+      s3
+        .listObjects({
+          Bucket: process.env.BUCKET_NAME!,
+          Prefix: spaceId + '/',
+        })
+        .promise(),
+      this.spaceService.findOneByUid(spaceId),
+    ]);
+    if (!space) return { message: 'Space not found' };
+    if (!Contents) return { message: 'Something went wrong. Try again later.' };
+    Contents.shift();
+    if (Contents?.length >= space.spaceSize)
+      return { message: `Max ${space.spaceSize} images per space` };
+
     const params = {
       Bucket: process.env.BUCKET_NAME,
       Key: `${spaceId}/${userId}.jpg`,
@@ -67,6 +93,11 @@ export class ApiService {
         s3.getSignedUrl('putObject', params, (err, url) => {
           err ? reject(err) : resolve(url);
         });
+      });
+      await this.signedUrlService.create({
+        userId,
+        expire: new Date(Date.now() + 60 * 5 * 1000),
+        signedUrl: url,
       });
       return url;
     } catch (err) {

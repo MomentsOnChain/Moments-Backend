@@ -18,19 +18,17 @@ export class MongoSpacesService {
     return this.spacesModel.bulkWrite(operations);
   }
 
-  async create(createTransactionDto: any): Promise<ISpaces> {
-    const createdSpaces = await new this.spacesModel(
-      createTransactionDto,
-    ).save();
+  async create(object: any): Promise<ISpaces> {
+    const createdSpaces = await new this.spacesModel(object).save();
     return createdSpaces;
   }
 
-  async findOneByUid(userId: string) {
-    return this.spacesModel.findOne({ userId }).exec();
+  async findOneByUid(_id: string) {
+    return this.spacesModel.findOne({ _id }).lean().exec();
   }
 
   async findByUid(userId: string) {
-    return this.spacesModel.find({ userId }).exec();
+    return this.spacesModel.find({ userId }).lean().exec();
   }
 
   async createS3Folder(folderId: string) {
