@@ -3,7 +3,7 @@ import { fetchBuffer } from './util';
 import { Canvas, loadImage } from 'canvas-constructor/napi-rs';
 import { writeFile } from 'fs/promises';
 
-export const generateImage = async (spaceId: string) => {
+export const generateImage = async (spaceId: string, spaceSize: number) => {
   const data = (await getSpaceImages(spaceId)) || [];
   const images = await Promise.all(
     data.map(async (image) => {
@@ -18,7 +18,7 @@ export const generateImage = async (spaceId: string) => {
     }),
   );
 
-  const a = calculateCanvasSize(images);
+  const a = calculateCanvasSizeWithNImagesPerRow(images, spaceSize);
   const canvas = new Canvas(a.width, a.height);
 
   let x = 0;
@@ -41,7 +41,22 @@ export const generateImage = async (spaceId: string) => {
   writeFile('test.png', canvas.png());
   return images;
 };
+// calculate canvas size with n number of images per row
 
+const calculateCanvasSizeWithNImagesPerRow = (images: any[], n: number) => {
+  const width = images.reduce((acc, image, index) => {
+    if (index % n === 0) return acc + image.image.width + 3;
+    return acc;
+  }, 0);
+  const height = images.reduce((acc, image, index) => {
+    if (index % n === 0) return acc + image.image.height + 3;
+    return acc;
+  }, 0);
+  const aspectRatio = width / height;
+  return { width, height, aspectRatio };
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const calculateCanvasSize = (images: any[]) => {
   const width = images.reduce((acc, image) => {
     return acc + image.image.width + 3;
