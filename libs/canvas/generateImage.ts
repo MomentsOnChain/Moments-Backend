@@ -21,28 +21,33 @@ export const generateImage = async (spaceId: string) => {
   const a = calculateCanvasSize(images);
   const canvas = new Canvas(a.width, a.height);
 
+  let x = 0;
+  let y = 0;
+  let maxHeight = 0;
   for (let i = 0; i < images.length; i++) {
     const image = images[i];
     const { width, height } = image.image;
-    const x = images.slice(0, i).reduce((acc, image) => {
-      return acc + image.image.width;
-    }, 0);
-    const y = images.slice(0, i).reduce((acc, image) => {
-      return acc + image.image.height;
-    }, 0);
-    canvas.printImage(image.image, x, y, width, height);
+
+    if (x + width > canvas.width) {
+      x = 0;
+      y += maxHeight + 2;
+      maxHeight = 0;
+    }
+
+    canvas.printImage(image.image, x + 2, y + 2, width, height);
+    x += width + 2;
+    maxHeight = Math.max(maxHeight, height);
   }
   writeFile('test.png', canvas.png());
   return images;
 };
 
-// calculate width, height and aspect ratio of the canvas based upon the images
 const calculateCanvasSize = (images: any[]) => {
   const width = images.reduce((acc, image) => {
-    return acc + image.image.width;
+    return acc + image.image.width + 3;
   }, 0);
   const height = images.reduce((acc, image) => {
-    return acc + image.image.height;
+    return acc + image.image.height + 3;
   }, 0);
   const aspectRatio = width / height;
   return { width, height, aspectRatio };

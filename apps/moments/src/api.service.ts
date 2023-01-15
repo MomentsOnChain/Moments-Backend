@@ -62,6 +62,7 @@ export class ApiService {
   }
 
   async generateSignedUrl(spaceId: string, userId: string) {
+    console.log('spaceId', spaceId);
     if (!Types.ObjectId.isValid(spaceId)) {
       return {
         message: 'Invalid space _id',

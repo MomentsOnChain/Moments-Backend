@@ -25,7 +25,7 @@ export class UserController {
   })
   @UseGuards(JwtGuard)
   @HttpCode(200)
-  @Get(':_id')
+  @Get(':user_id')
   async getUser(@Param('user_id') id: string) {
     const resp = await this.apiService.getUser(id);
     return resp;
@@ -39,8 +39,8 @@ export class UserController {
   @UseGuards(JwtGuard)
   @HttpCode(200)
   @Get('email/:email')
-  async getUserByMail(@Param('email') id: string) {
-    const resp = await this.apiService.getUserByMail(id);
+  async getUserByMail(@Param('email') email: string) {
+    const resp = await this.apiService.getUserByMail(email);
     return resp;
   }
 
@@ -49,18 +49,18 @@ export class UserController {
     status: 200,
     description: 'Returns a signed url for s3 upload',
   })
-  @UseGuards(JwtGuard)
+  // @UseGuards(JwtGuard)
   @HttpCode(200)
   @Get('signed_url/:space_id')
   async generateSignedUrl(
     @Headers() headers: FastifyRequest['headers'],
-    @Param('_spaceId') spaceId: string,
+    @Param('space_id') space_id: string,
   ) {
     const { uid } = await this.apiService.isAuthenticated(
       headers.authorization,
     );
     if (!uid) return { message: 'Invalid token' };
-    const resp = await this.apiService.generateSignedUrl(spaceId, uid);
+    const resp = await this.apiService.generateSignedUrl(space_id, uid);
     if (!resp) return { message: 'Something went wrong. Try again later.' };
     return { url: resp };
   }
@@ -79,36 +79,4 @@ export class UserController {
       return { valid: false, payload: null };
     }
   }
-
-  // @ApiBearerAuth()
-  // @ApiResponse({
-  //   status: 200,
-  //   description: 'Acknowledge image upload from signed url',
-  //   schema: {
-  //     type: 'object',
-  //     properties: {
-  //       url: {
-  //         type: 'string',
-  //       },
-  //       userId: {
-  //         type: 'string',
-  //       },
-  //       spaceId: {
-  //         type: 'string',
-  //       },
-  //       metaData: {
-  //         type: 'string',
-  //       },
-  //     },
-  //   },
-  // })
-  // @UseGuards(JwtGuard)
-  // @HttpCode(200)
-  // @Post('acknowledge_image_upload')
-  // async acknowledgeImageUpload() {
-  //   // object: acknowledgeImageDto, //@Body()
-  //   return {
-  //     message: 'acknowledged',
-  //   };
-  // }
 }
