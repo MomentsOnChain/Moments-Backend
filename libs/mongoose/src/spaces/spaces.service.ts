@@ -5,7 +5,6 @@ import { Model } from 'mongoose';
 import { s3 } from 'libs/S3/s3';
 
 import { ISpaces, SpacesSchemaName } from '../schemas/spaces.schema';
-import { SpacesDto } from '../dto/spaces.dto';
 
 @Injectable()
 export class MongoSpacesService {
