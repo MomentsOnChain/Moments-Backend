@@ -44,7 +44,7 @@ export class SpacesController {
     );
     if (!uid) return { message: 'Invalid token' };
     const resp = await this.sService.findByUid(uid);
-    await generateImage('63c09e2818c68eee133084fd', 100);
+
     return resp;
   }
 
@@ -113,5 +113,22 @@ export class SpacesController {
       userId: uid,
     });
     return resp;
+  }
+
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Generate image for the space.',
+  })
+  @UseGuards(JwtGuard)
+  @HttpCode(200)
+  @Post('generate_image/:space_id')
+  async generateImage(@Param('space_id') spaceId: string) {
+    const space = await this.sService.findOneByUid(spaceId);
+    if (!space) return { message: 'Space not found' };
+    const resp = await generateImage(spaceId, space.spaceSize);
+    return {
+      success: !!(await this.apiService.uploadSpaceImage(spaceId, resp)),
+    };
   }
 }

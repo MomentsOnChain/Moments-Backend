@@ -106,4 +106,19 @@ export class ApiService {
       return null;
     }
   }
+
+  async uploadSpaceImage(spaceId: string, buffer: Buffer) {
+    try {
+      await s3
+        .putObject({
+          Bucket: process.env.BUCKET_NAME!,
+          Key: `${spaceId}/${spaceId}.jpg`,
+          Body: buffer,
+        })
+        .promise();
+      return true;
+    } catch {
+      return false;
+    }
+  }
 }
