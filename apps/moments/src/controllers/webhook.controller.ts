@@ -63,7 +63,7 @@ export class WebhookController {
           provider: 'stripe',
           paymentId: null as any,
           transactionStatus: TransactionStatus.Pending,
-        });
+        } as any);
 
         if (checkout.payment_status == 'paid')
           await this.fullFillOrder(checkout);

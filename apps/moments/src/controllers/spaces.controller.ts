@@ -81,11 +81,10 @@ export class SpacesController {
 
     if (!spaceImages) return { message: 'Space not found' };
     return {
-      spaceName: space?.spaceName ?? '',
+      ...space,
       spaceImages: spaceImages.map(
         (image) => `https://acmmjcet-memorium.s3.amazonaws.com/${image.Key}`,
       ),
-      minted: space!.isMinted,
     };
   }
 
