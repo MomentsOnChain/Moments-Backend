@@ -60,7 +60,7 @@ export class SpacesController {
     @Param('space_id') space_id: string,
     @Param('space_name') space_name: string,
   ) {
-    const resp = await this.sService.updateOneByUid(space_id, space_name);
+    const resp = await this.sService.updateNameByUid(space_id, space_name);
     if (resp === 1) return { message: 'Space name updated' };
     return { message: 'Space not found' };
   }
@@ -127,8 +127,13 @@ export class SpacesController {
     const space = await this.sService.findOneByUid(spaceId);
     if (!space) return { message: 'Space not found' };
     const resp = await generateImage(spaceId, space.spaceSize);
+    if (!resp) return { message: 'Error while generating image' };
+    const upload = await this.apiService.uploadSpaceImage(spaceId, resp);
+    this.sService.updateOneByUid(spaceId, {
+      combinedImageURL: 'https://acmmjcet-memorium.s3.amazonaws.com/' + upload,
+    });
     return {
-      success: !!(await this.apiService.uploadSpaceImage(spaceId, resp)),
+      success: !!upload,
     };
   }
 }

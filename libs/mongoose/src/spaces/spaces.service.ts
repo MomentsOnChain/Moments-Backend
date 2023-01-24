@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { s3 } from 'libs/S3/s3';
 
 import { ISpaces, SpacesSchemaName } from '../schemas/spaces.schema';
+import { SpacesDto } from '../dto/spaces.dto';
 
 @Injectable()
 export class MongoSpacesService {
@@ -31,12 +32,16 @@ export class MongoSpacesService {
     return this.spacesModel.find({ userId }).lean().exec();
   }
 
-  async updateOneByUid(_id: string, name: string) {
+  async updateNameByUid(_id: string, name: string) {
     const { modifiedCount } = await this.spacesModel
       .updateOne({ _id }, { spaceName: name })
       .lean()
       .exec();
     return modifiedCount;
+  }
+
+  async updateOneByUid(_id: string, data: any) {
+    return this.spacesModel.updateOne({ _id }, data).lean().exec();
   }
 
   async createS3Folder(folderId: string) {

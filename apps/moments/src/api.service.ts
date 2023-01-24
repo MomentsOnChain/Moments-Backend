@@ -116,7 +116,7 @@ export class ApiService {
           Body: buffer,
         })
         .promise();
-      return true;
+      return `${spaceId}/${spaceId}.jpg`;
     } catch {
       return false;
     }

@@ -12,8 +12,4 @@ export class SpacesDto {
   @IsNotEmpty()
   @IsString()
   password!: string;
-
-  @ApiProperty()
-  @IsString()
-  avatar!: string;
 }
