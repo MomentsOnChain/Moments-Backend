@@ -27,8 +27,8 @@ export class SpacesService {
         },
       ],
       mode: 'payment',
-      success_url: `${frontendURL}/transaction/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${frontendURL}/transaction/cancel`,
+      success_url: `${frontendURL}/admin/space/new?success=true`,
+      cancel_url: `${frontendURL}/admin/space/new?success=false`,
       metadata: {
         userId,
         transactionId: id,
